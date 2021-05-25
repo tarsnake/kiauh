@@ -2,6 +2,20 @@
 
 This document covers possible important changes to KIAUH.
 
+### 2021-05-25
+
+* Moonraker introduced an optional `log_path` clients can make use of to show log files located in that folder to their users. More info here: https://github.com/Arksine/moonraker/commit/829b3a4ee80579af35dd64a37ccc092a1f67682a \
+Client developers agreed upon using `~/klipper_logs` as the new default log path.\
+That means, from now on, Klipper and Moonraker services installed with KIAUH will place their logfiles in that mentioned folder. \
+Additionally, KIAUH will detect services that still use the old location and will update them with the next Klipper and/or Moonraker update done with the KIAUH update function.\
+Additionally symlinks for the following logfiles will get created along those update procedures to make them accessible through the webinterface once its supported:
+    - webcamd.log
+    - mainsail-access.log
+    - mainsail-error.log
+    - fluidd-access.log
+    - fluidd-error.log
+
+
 ### 2021-01-31
 
 * **This is a big one... KIAUH v3.0 is out.**\

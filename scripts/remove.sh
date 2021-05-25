@@ -64,7 +64,7 @@ remove_klipper(){
   fi
 
   ### remove all logfiles
-  FILE="/tmp/klippy?(-*([0-9])).log"
+  FILE="${HOME}/klipper_logs/klippy?(-*([0-9])).log"
   if ls $FILE 2>/dev/null 1>&2; then
     for log in $(ls $FILE); do
       status_msg "Removing $log ..."
@@ -145,7 +145,7 @@ remove_moonraker(){
   fi
 
   ### remove all logfiles
-  FILE="/tmp/moonraker?(-*([0-9])).log"
+  FILE="${HOME}/klipper_logs/moonraker?(-*([0-9])).log"
   if ls $FILE 2>/dev/null 1>&2; then
     for log in $(ls $FILE); do
       status_msg "Removing $log ..."
@@ -264,6 +264,14 @@ remove_mainsail(){
     sudo rm /etc/nginx/sites-enabled/mainsail && ok_msg "File removed!"
   fi
 
+  ### remove mainsail nginx logs and log symlinks
+  for log in $(find /var/log/nginx -name "mainsail*"); do
+    sudo rm -f $log
+  done
+  for log in $(find ${HOME}/klipper_logs -name "mainsail*"); do
+    rm -f $log
+  done
+
   CONFIRM_MSG="Mainsail successfully removed!"
 }
 
@@ -285,6 +293,14 @@ remove_fluidd(){
     status_msg "Removing Fluidd Symlink for Nginx ..."
     sudo rm /etc/nginx/sites-enabled/fluidd && ok_msg "File removed!"
   fi
+
+  ### remove mainsail nginx logs and log symlinks
+  for log in $(find /var/log/nginx -name "fluidd*"); do
+    sudo rm -f $log
+  done
+  for log in $(find ${HOME}/klipper_logs -name "fluidd*"); do
+    rm -f $log
+  done
 
   CONFIRM_MSG="Fluidd successfully removed!"
 }
@@ -416,6 +432,10 @@ remove_mjpg-streamer(){
     rm -rf ${HOME}/mjpg-streamer
     ok_msg "MJPG-Streamer directory removed!"
   fi
+
+  ### remove webcamd log and symlink
+  [ -f "/var/log/webcamd.log" ] && sudo rm -f "/var/log/webcamd.log"
+  [ -L "${HOME}/klipper_logs/webcamd.log" ] && rm -f "${HOME}/klipper_logs/webcamd.log"
 
   CONFIRM_MSG="MJPG-Streamer successfully removed!"
 }

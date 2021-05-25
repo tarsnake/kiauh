@@ -181,7 +181,7 @@ create_moonraker_service(){
   CFG_PATH="$klipper_cfg_loc"
   MR_ENV=$MOONRAKER_ENV
   MR_DIR=$MOONRAKER_DIR
-  MR_LOG="/tmp/moonraker.log"
+  MR_LOG="${HOME}/klipper_logs/moonraker.log"
   MR_CONF="$CFG_PATH/moonraker.conf"
   MR_SERV_SRC="${SRCDIR}/kiauh/resources/moonraker.service"
   MR_SERV_TARGET="$SYSTEMDDIR/moonraker.service"
@@ -215,7 +215,7 @@ create_moonraker_service(){
       CFG_PATH="$klipper_cfg_loc/printer_$i"
       MR_SERV_TARGET="$SYSTEMDDIR/moonraker-$i.service"
       MR_CONF="$CFG_PATH/moonraker.conf"
-      MR_LOG="/tmp/moonraker-$i.log"
+      MR_LOG="${HOME}/klipper_logs/moonraker-$i.log"
       ### write multi instance service
       write_mr_service
       ### enable instance
@@ -248,6 +248,7 @@ create_moonraker_conf(){
   SINGLE_INST=1
   PORT=7125
   CFG_PATH="$klipper_cfg_loc"
+  LOG_PATH="${HOME}/klipper_logs"
   MR_CONF="$CFG_PATH/moonraker.conf"
   MR_DB="~/.moonraker_database"
   KLIPPY_UDS="/tmp/klippy_uds"
@@ -263,6 +264,7 @@ create_moonraker_conf(){
         cp $MR_CONF_SRC $MR_CONF
         sed -i "s|%PORT%|$PORT|" $MR_CONF
         sed -i "s|%CFG%|$CFG_PATH|" $MR_CONF
+        sed -i "s|%LOG%|$LOG_PATH|" $MR_CONF
         sed -i "s|%MR_DB%|$MR_DB|" $MR_CONF
         sed -i "s|%UDS%|$KLIPPY_UDS|" $MR_CONF
         sed -i "s|%LAN%|$LAN|" $MR_CONF
