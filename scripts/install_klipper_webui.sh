@@ -100,6 +100,9 @@ install_webui(){
   ### creating the mainsail/fluidd nginx cfg
   set_nginx_cfg "$1"
 
+  ### symlink nginx log
+  symlink_webui_nginx_log "$1"
+
   ### copy the kiauh_macros.cfg to the config location
   install_kiauh_macros
 
@@ -112,6 +115,24 @@ install_webui(){
   ### confirm message
   CONFIRM_MSG="$IF_NAME1 has been set up!"
   print_msg && clear_msg
+}
+
+symlink_webui_nginx_log(){
+  LPATH="${HOME}/klipper_logs"
+  [ ! -d "$LPATH" ] && mkdir -p "$LPATH"
+  logs=(
+    "/var/log/nginx/$1-access.log"
+    "/var/log/nginx/$1-error.log"
+  )
+
+  for log in "${logs[@]}"; do
+    logfile=$(echo $log | rev | cut -d/ -f1 | rev)
+    if [ -f "$log" ] && [ ! -L "$LPATH/$logfile" ]; then
+      status_msg "Creating symlink for $logfile ..."
+      ln -s $log "$LPATH/$logfile"
+      ok_msg "OK!"
+    fi
+  done
 }
 
 install_kiauh_macros(){

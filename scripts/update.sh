@@ -66,39 +66,34 @@ update_log_paths(){
   ### update services to make use of moonrakers new log_path option
   ### https://github.com/Arksine/moonraker/commit/829b3a4ee80579af35dd64a37ccc092a1f67682a
   shopt -s extglob # enable extended globbing
-  [ ! -d "${HOME}/klipper_logs" ] && mkdir -p "${HOME}/klipper_logs"
+  LPATH="${HOME}/klipper_logs"
+  [ ! -d "$LPATH" ] && mkdir -p "$LPATH"
   FILE="$SYSTEMDDIR/$1?(-*([0-9])).service"
   for file in $(ls $FILE); do
     [ "$1" == "klipper" ] && LOG="klippy"
     [ "$1" == "moonraker" ] && LOG="moonraker"
     if [ ! "$(grep "\-l" $file)" ]; then
       status_msg "Updating $file ..."
-      sudo sed -i -r "/ExecStart=/ s|$| -l ${HOME}/klipper_logs/$LOG.log|" $file
+      sudo sed -i -r "/ExecStart=/ s|$| -l $LPATH/$LOG.log|" $file
       ok_msg "$file updated!"
     elif [ "$(grep "\-l \/tmp\/$LOG" $file)" ]; then
       status_msg "Updating $file ..."
-      sudo sed -i -r "/ExecStart=/ s|-l \/tmp\/$LOG|-l ${HOME}/klipper_logs/$LOG|" $file
+      sudo sed -i -r "/ExecStart=/ s|-l \/tmp\/$LOG|-l $LPATH/$LOG|" $file
       ok_msg "$file updated!"
     fi
   done
   sudo systemctl daemon-reload
 
-  logs=(
-    "/var/log/webcamd.log"
-    "/var/log/nginx/mainsail-access.log"
-    "/var/log/nginx/mainsail-error.log"
-    "/var/log/nginx/fluidd-access.log"
-    "/var/log/nginx/fluidd-error.log"
-  )
+  # create symlink for mainsail and fluidd nginx logs
+  symlink_webui_nginx_log "mainsail"
+  symlink_webui_nginx_log "fluidd"
 
-  for log in "${logs[@]}"; do
-    logfile=$(echo $log | rev | cut -d/ -f1 | rev)
-    if [ -f "$log" ] && [ ! -L "${HOME}/klipper_logs/$logfile" ]; then
-      status_msg "Creating symlink for $logfile ..."
-      ln -s $log "${HOME}/klipper_logs/$logfile"
-      ok_msg "OK!"
-    fi
-  done
+  # create symlink for webcamd log
+  if [ -f "/var/log/webcamd.log" ] && [ ! -L "$LPATH/webcam.log" ]; then
+    status_msg "Creating symlink for $logfile ..."
+    ln -s $log "$LPATH/$logfile"
+    ok_msg "OK!"
+  fi
 
   shopt -u extglob # disable extended globbing
 }
@@ -160,12 +155,14 @@ update_mainsail(){
   bb4u "mainsail"
   status_msg "Updating Mainsail ..."
   mainsail_setup
+  symlink_webui_nginx_log "mainsail"
 }
 
 update_fluidd(){
   bb4u "fluidd"
   status_msg "Updating Fluidd ..."
   fluidd_setup
+  symlink_webui_nginx_log "mainsail"
 }
 
 update_moonraker(){
