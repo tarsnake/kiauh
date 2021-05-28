@@ -119,20 +119,19 @@ install_webui(){
 
 symlink_webui_nginx_log(){
   LPATH="${HOME}/klipper_logs"
+  UI_ACCESS_LOG="/var/log/nginx/$1-access.log"
+  UI_ERROR_LOG="/var/log/nginx/$1-error.log"
   [ ! -d "$LPATH" ] && mkdir -p "$LPATH"
-  logs=(
-    "/var/log/nginx/$1-access.log"
-    "/var/log/nginx/$1-error.log"
-  )
-
-  for log in "${logs[@]}"; do
-    logfile=$(echo $log | rev | cut -d/ -f1 | rev)
-    if [ -f "$log" ] && [ ! -L "$LPATH/$logfile" ]; then
-      status_msg "Creating symlink for $logfile ..."
-      ln -s $log "$LPATH/$logfile"
-      ok_msg "OK!"
-    fi
-  done
+  if [ -f "$UI_ACCESS_LOG" ] &&  [ ! -L "$LPATH/$1-access.log" ]; then
+    status_msg "Creating symlink for $UI_ACCESS_LOG ..."
+    ln -s $UI_ACCESS_LOG "$LPATH"
+    ok_msg "OK!"
+  fi
+  if [ -f "$UI_ERROR_LOG" ] &&  [ ! -L "$LPATH/$1-error.log" ]; then
+    status_msg "Creating symlink for $UI_ERROR_LOG ..."
+    ln -s $UI_ERROR_LOG "$LPATH"
+    ok_msg "OK!"
+  fi
 }
 
 install_kiauh_macros(){

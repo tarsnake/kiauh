@@ -89,13 +89,50 @@ update_log_paths(){
   symlink_webui_nginx_log "fluidd"
 
   # create symlink for webcamd log
-  if [ -f "/var/log/webcamd.log" ] && [ ! -L "$LPATH/webcam.log" ]; then
-    status_msg "Creating symlink for $logfile ..."
-    ln -s $log "$LPATH/$logfile"
+  if [ -f "/var/log/webcamd.log" ] && [ ! -L "$LPATH/webcamd.log" ]; then
+    status_msg "Creating symlink for '/var/log/webcamd.log' ..."
+    ln -s "/var/log/webcamd.log" "$LPATH"
     ok_msg "OK!"
   fi
 
   shopt -u extglob # disable extended globbing
+}
+
+migrate_custompios(){
+  ### migrate vanilla mainsailOS 0.4.0 and fluiddPI v1.13.0
+  ### and older to be in sync with their newer releases
+  if [ -f "/boot/$1.txt" ]; then
+    status_msg "Starting migration... Please wait..."
+    ### migrate webcam related stuff
+    WEBCAMD_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/master/src/modules/mjpgstreamer/filesystem/root/usr/local/bin/webcamd"
+    MJPG_SERV_SRC="${SRCDIR}/kiauh/resources/webcamd.service"
+    MJPG_SERV_TARGET="$SYSTEMDDIR/webcamd.service"
+    KL_SERV_SRC="https://raw.githubusercontent.com/raymondh2/MainsailOS/dev-klipper-serviced/src/modules/klipper/filesystem/root/etc/systemd/system/klipper.service"
+    # stop webcam service
+    sudo systemctl stop webcamd.service
+    # replace old webcamd.service
+    sudo rm -f "$SYSTEMDDIR/webcamd.service"
+    # replace old webcamd
+    sudo rm -f "/root/bin/webcamd"
+    sudo cp $MJPG_SERV_SRC $MJPG_SERV_TARGET
+    sudo sed -i "s|%USER%|pi|" $MJPG_SERV_TARGET
+    sudo wget $WEBCAMD_SRC -O "/usr/local/bin/webcamd"
+    sudo chmod +x /usr/local/bin/webcamd
+    # copy mainsail.txt or fluidd.txt to klipper_config and rename it
+    sudo mv "/boot/$1.txt" "${HOME}/klipper_config/webcam.txt"
+    sudo chown pi:pi "${HOME}/klipper_config/webcam.txt"
+    ### migrate klipper related stuff
+    sudo service klipper stop
+    # stop and remove init.d klipper service
+    sudo update-rc.d -f klipper remove
+    sudo rm -f /etc/init.d/klipper
+    sudo rm -f /etc/default/klipper
+    # create new systemd service
+    sudo wget $KL_SERV_SRC -O "/etc/systemd/system/klipper.service"
+    sudo systemctl enable klipper.service
+    sudo systemctl daemon-reload
+    ok_msg "Migration complete!"
+  fi
 }
 
 update_klipper(){
@@ -130,6 +167,8 @@ update_klipper(){
       ok_msg "Dependencies have been installed!"
     fi
   fi
+  migrate_custompios "mainsail"
+  migrate_custompios "fluiddpi"
   update_log_paths "klipper"
   ok_msg "Update complete!"
   klipper_service "restart"
@@ -162,7 +201,7 @@ update_fluidd(){
   bb4u "fluidd"
   status_msg "Updating Fluidd ..."
   fluidd_setup
-  symlink_webui_nginx_log "mainsail"
+  symlink_webui_nginx_log "fluidd"
 }
 
 update_moonraker(){
