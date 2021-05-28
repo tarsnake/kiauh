@@ -5,7 +5,8 @@ remove_klipper(){
   shopt -s extglob # enable extended globbing
   ### ask the user if he wants to uninstall moonraker too.
   ###? currently usefull if the user wants to switch from single-instance to multi-instance
-  if ls /etc/systemd/system/moonraker*.service 2>/dev/null 1>&2; then
+  FILE="$SYSTEMDDIR/moonraker?(-*([0-9])).service"
+  if ls $FILE 2>/dev/null 1>&2; then
     while true; do
       unset REM_MR
       top_border
