@@ -51,6 +51,9 @@ KLIPPERSCREEN_REPO=https://github.com/jordanruthe/KlipperScreen.git
 #branches
 BRANCH_SCURVE_SMOOTHING=dmbutyugin/scurve-smoothing
 BRANCH_SCURVE_SHAPING=dmbutyugin/scurve-shaping
+DESUUUU_REPO=https://github.com/Desuuuu/klipper.git
+BRANCH_DWIN=Desuuuu/DGUS-reloaded-Klipper
+
 
 ### set some messages
 warn_msg(){
