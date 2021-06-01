@@ -52,7 +52,7 @@ KLIPPERSCREEN_REPO=https://github.com/jordanruthe/KlipperScreen.git
 BRANCH_SCURVE_SMOOTHING=dmbutyugin/scurve-smoothing
 BRANCH_SCURVE_SHAPING=dmbutyugin/scurve-shaping
 DESUUUU_REPO=https://github.com/Desuuuu/klipper.git
-BRANCH_DWIN=Desuuuu/DGUS-reloaded-Klipper
+DWIN_REPO=https://github.com/Desuuuu/DGUS-reloaded-Klipper.git
 
 
 ### set some messages
